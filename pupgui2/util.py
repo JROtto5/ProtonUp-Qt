@@ -471,24 +471,25 @@ def sort_compatibility_tool_names(unsorted: list[str], reverse=False) -> list[st
     Return Type: list[str]
     """
     unsorted = sorted(unsorted)
-    ver_dict = {}
+    # A list, not a dict keyed by sort key: names can share a key (e.g. Proton-6.21-GE-1 and -2); the stable sort keeps those alphabetical
+    ver_keys = []
     for i, ver in enumerate(unsorted, start=1):
         if ver.startswith('GE-Proton'):
-            ver_dict[100+i] = ver
+            ver_keys.append((100+i, ver))
         elif 'SteamTinkerLaunch' in ver:
-            ver_dict[100+i] = ver
+            ver_keys.append((100+i, ver))
         elif 'Proton-' in ver:
             try:
                 ver_string = ver.split('-')[1]
                 ver_major = int(ver_string.split('.')[0])
                 ver_minor = int(ver_string.split('.')[1])
-                ver_dict[ver_major * 10 + ver_minor] = ver
+                ver_keys.append((ver_major * 10 + ver_minor, ver))
             except:
-                ver_dict[i] = ver
+                ver_keys.append((i, ver))
         else:
-            ver_dict[i] = ver
+            ver_keys.append((i, ver))
 
-    sorted_vers = [ver_dict[v] for v in sorted(ver_dict)]
+    sorted_vers = [ver for _, ver in sorted(ver_keys, key=lambda k: k[0])]
 
     if reverse:
         sorted_vers.reverse()

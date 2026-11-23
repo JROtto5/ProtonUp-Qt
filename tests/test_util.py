@@ -423,6 +423,37 @@ def test_compat_tool_available(compat_tool_name: str, ctobjs: list[dict[str, str
 
 
 @pytest.mark.parametrize(
+    'unsorted, expected', [
+        pytest.param(
+            ['GE-Proton9-27', 'Luxtorpeda', 'Proton-6.3-GE-1', 'GE-Proton8-32', 'Boxtron'],
+            ['Boxtron', 'Luxtorpeda', 'Proton-6.3-GE-1', 'GE-Proton8-32', 'GE-Proton9-27'],
+            id = 'Mixed compatibility tools'
+        ),
+        pytest.param(
+            ['Proton-6.21-GE-2', 'Proton-6.21-GE-1'],
+            ['Proton-6.21-GE-1', 'Proton-6.21-GE-2'],
+            id = 'Same Proton version'
+        ),
+        pytest.param(
+            ['Proton-6.1-GE-2', 'Proton-5.11-GE-1'],
+            ['Proton-5.11-GE-1', 'Proton-6.1-GE-2'],
+            id = 'Different Proton versions with the same sort key'
+        ),
+    ]
+)
+def test_sort_compatibility_tool_names(unsorted: list[str], expected: list[str]) -> None:
+
+    """
+    Given a list of compatibility tool names,
+    When the names are sorted,
+    Then every name should be kept, sorted by Proton version
+    """
+
+    assert sort_compatibility_tool_names(unsorted) == expected
+    assert sort_compatibility_tool_names(unsorted, reverse=True) == expected[::-1]
+
+
+@pytest.mark.parametrize(
     'combobox_values, value, expected_index', [
         pytest.param(['a', 'b', 'c', 'd', 'e'], 'c', 2, id = 'Simple list'),
         pytest.param(['Steam', 'Lutris',' Heroic'], 'Lutris', 1, id = 'List of Launcher Names'),
